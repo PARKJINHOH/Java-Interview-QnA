@@ -67,6 +67,9 @@ lang 패키지내에 구현되어있는 Thread 클래스를 상속받거나 Runn
 ### Q14. 쓰레드의 동기화(synchronized)와 데드락(dead-lock)에 대해서 설명하시오.
 
 ### Q15. String, StringBuffer, StringBuilder에 대해서 설명하시오.
+String은 문자열을 처리하는 자바의 대표적인 클래스입니다. String 클래스는 한번 생성되면 변경이 불가능한 immutable 성격을 가지고 있습니다. String 클래스가 immutable한 이유는 변경이 적고 참조만 많은 경우 혹은 여러개의 쓰레드에서 공유하는 문자열일 경우 별다른 동기화를 구현하지 않고 안전하게 공유될 수 있다는 장점있기 때문입니다. 하지만 문자열을 변형하는 경우가 많은 경우(자르거나 이어붙이기) 매번 새로운 String 객체가 생성되기 때문에 메모리와 속도측면에서 비효율적입니다. 따라서 String 클래스는 변경이 적고 단순 참조만 많은 경우에 사용합니다.
+
+StringBuffer 클래스와 StringBuilder 클래스는 새로운 객체를 생성하지 않고 기존 문자열을 변경합니다. 단, StringBuilder의 경우 쓰레드의 동기화를 지원하지 않기 때문에 쓰레드에서 사용하기 위해서는 StringBuffer 클래스를 이용해야합니다. 하지만 속도는 동기화를 처리하지 않는 StringBuilder 클래스가 동기화를 처리하는 StringBuffer 클래스보다 빠르기 때문에 쓰레드를 사용하지 않는 환경에서는 StringBuilder 클래스를 사용하는편이 유리합니다.
 
 ### Q16. JVM(java virtual machine)의 메모리 구조와 가비지 컬렉팅을 설명하시오.
 
