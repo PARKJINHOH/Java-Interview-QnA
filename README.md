@@ -94,7 +94,104 @@ major에서는 old 영역을 대상으로 실행됩니다. minor에 비해 시�
 
 따라서, 모든 IO에 대해 쓰레드를 생성하는 방식이 아닌 채널관리자(selector)를 사용하여 실제 IO가 발생한 채널만 쓰레드를 생성하여 관리하는 방식입니다. 하지만 채널을 이용한 프로그래밍은 기존의 다중쓰레드를 이용한 방식보다 구현하기 어려운 단점이 있습니다.
 
-### Q17. 자바의 call-by-value에 대해서 예를 들어 설명하시오.
+### Q17. 자바의 call-by-value, call-by-reference에 대해서 예를 들어 설명하시오.
+자바에서는 기본 자료형은 call-by-value, 참조 자료형은 call-by-reference에 의해 메소드의 인자 값을 전달합니다. 예를 들어 아래와 같은 소스 코드에서 swap 함수 내부에서는 a와 b의 값이 변경되나, 메인 메소드에서는 적용되지 않습니다. 메소드의 인자로 a, b가 call-by-value에 의해 복사된 값이 넘어가기 때문입니다.
+
+```java
+public class Main {
+  public static void main(String args[]) {
+    int a = 1;
+    int b = 2;
+    System.out.println(a + " " + b);  // 결과 : 1 2
+    
+    swap(a, b);
+    System.out.println(a + " " + b);  // 결과 : 1 2
+  }
+  
+  private static void swap(int a, int b) {
+    int tmp = a;
+    a = b;
+    b = tmp;
+  }
+}
+```
+
+따라서 이를 해결하기 위해서 아래와 같은 임시방편적인 코드를 사용할 수 있습니다. (근본적인 swap 함수를 구현하기 위해서는 변수 자체를 객체화 시켜 객체의 멤버 변수 값을 교환하는 방식을 가장 많이 사용합니다.)
+
+```java
+public class Main {
+	public static void main(String args[]) {
+		int a = 1;
+		int b = 2;
+		System.out.println(a + " " + b);  // 결과 : 1 2
+
+		b = swap(a, a = b);
+		System.out.println(a + " " + b);  // 결과 : 2 1
+	}
+
+	private static int swap(int a, int b) {
+		return a;
+	}
+}
+```
+
+참조 자료형인 경우에도 메소드의 인자로 넘어갈 때 래퍼런스의 복사 값이 넘어가기 때문에 객체간의 교환은 불가능합니다. 복사된 래퍼런스 값끼리만 복사가 되기 때문입니다. 예를들어 아래와 같은 경우가 있습니다.
+
+```java
+public class Main {
+	public static void main(String args[]) {
+		Person p1 = new Person("이순신");
+		Person p2 = new Person("홍길동");
+		System.out.println(p1.name + " " + p2.name); // 결과 : 이순신 홍길동
+
+		swap(p1, p2);
+		System.out.println(p1.name + " " + p2.name); // 결과 : 이순신 홍길동
+	}
+
+	private static void swap(Person p1, Person p2) {
+		Person tmp = p1;
+		p1 = p2;
+		p2 = tmp;
+	}
+
+	private static class Person {
+		public String name;
+
+		public Person(String name) {
+			this.name = name;
+		}
+	}
+}
+```
+
+따라서 name 멤버 변수를 변경하기 위해서는 다음과 같이 변경해줍니다. 이 경우 래퍼런스의 복사 값이 메소드의 인자로 넘어왔지만 결국 가리키는 객체는 동일하기 때문에 name 멤버 변수 값을 성공적으로 교환할 수 있습니다.
+
+```java
+public class Main {
+	public static void main(String args[]) {
+		Person p1 = new Person("이순신");
+		Person p2 = new Person("홍길동");
+		System.out.println(p1.name + " " + p2.name); // 결과 : 이순신 홍길동
+
+		swap(p1, p2);
+		System.out.println(p1.name + " " + p2.name); // 결과 : 홍길동 이순신
+	}
+
+	private static void swap(Person p1, Person p2) {
+		String tmp = p1.name;
+		p1.name = p2.name;
+		p2.name = tmp;
+	}
+
+	private static class Person {
+		public String name;
+
+		public Person(String name) {
+			this.name = name;
+		}
+	}
+}
+```
 
 ### Q18. 자바의 형변환 규칙은 어떻게 되는지 예를 들어 설명하시오.
 형변환에는 크게 2가지가 존재합니다. 첫번째로 묵시적 형변환으로 자바에서는 작은 단위를 큰 단위로 바꾸는 경우 묵시적 형변환을 지원합니다. 예를들어 상속관계에서 하위 객체를 상위 객체로 변환하거나 int형 변수를 double형 변수로 변환할 수 있습니다. 두번째로 명시적 형변환으로 큰 단위에서 작은 단위로 바꾸는 경우 명시적 형변환을 프로그래머가 정의해주어야 합니다. 이 경우 데이터의 일부가 유실될 수 있습니다. 예를들어 long 변수에 저장되어 있는 값을 int 변수로 변환하는 경우 (int) 키워드를 사용하는 방식입니다. 기타 산술, 논리, 참조 자료형 사이에서는 형변환이 불가능합니다.
